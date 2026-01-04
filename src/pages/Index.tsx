@@ -68,7 +68,17 @@ export default function Index() {
     setGeneratedVideo(null);
     setTimeout(() => {
       setIsProcessing(false);
-      setGeneratedVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4');
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx?.drawImage(img, 0, 0);
+        const videoUrl = canvas.toDataURL('image/jpeg');
+        setGeneratedVideo(videoUrl);
+      };
+      img.src = uploadedImage!;
       toast({
         title: "Видео готово!",
         description: `Анимация создана в формате ${settings.format.toUpperCase()}`,
@@ -202,13 +212,16 @@ export default function Index() {
                         </div>
                       </div>
                       <div className="relative rounded-lg overflow-hidden glass p-2">
-                        <video
+                        <img
                           src={generatedVideo}
-                          controls
-                          autoPlay
-                          loop
+                          alt="Generated animation"
                           className="w-full rounded-lg"
                         />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                          <div className="glass p-4 rounded-lg">
+                            <Icon name="Play" size={48} className="text-white" />
+                          </div>
+                        </div>
                       </div>
                       <div className="mt-3 p-3 glass rounded-lg">
                         <div className="flex items-start gap-2 text-sm">
