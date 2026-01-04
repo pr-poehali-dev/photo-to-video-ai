@@ -5,6 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -13,6 +14,7 @@ interface AnimationSettings {
   style: string;
   intensity: number;
   format: string;
+  prompt: string;
 }
 
 export default function Index() {
@@ -22,7 +24,8 @@ export default function Index() {
     duration: 3,
     style: 'cinematic',
     intensity: 50,
-    format: 'mp4'
+    format: 'mp4',
+    prompt: ''
   });
   const { toast } = useToast();
 
@@ -50,6 +53,15 @@ export default function Index() {
       });
       return;
     }
+
+    if (!settings.prompt.trim()) {
+      toast({
+        title: "Добавьте описание",
+        description: "Опишите, что должно произойти на фото",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsProcessing(true);
     setTimeout(() => {
@@ -60,6 +72,14 @@ export default function Index() {
       });
     }, 3000);
   };
+
+  const promptSuggestions = [
+    "Девушка медленно поворачивает голову и улыбается",
+    "Человек идет по улице, волосы развеваются на ветру",
+    "Облака плывут по небу, свет меняется",
+    "Камера медленно приближается к объекту",
+    "Листья на деревьях шелестят от ветра"
+  ];
 
   const examples = [
     { id: 1, title: 'Портрет', style: 'Cinematic', duration: '3s' },
@@ -161,6 +181,32 @@ export default function Index() {
             </h2>
             
             <div className="space-y-6">
+              <div>
+                <Label className="text-base mb-3 block flex items-center gap-2">
+                  <Icon name="Wand2" size={18} />
+                  Что должно произойти?
+                </Label>
+                <Textarea
+                  placeholder="Например: девушка идет к морю и прыгает в воду, волосы развеваются на ветру..."
+                  value={settings.prompt}
+                  onChange={(e) => setSettings({...settings, prompt: e.target.value})}
+                  className="glass min-h-[100px] resize-none"
+                />
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {promptSuggestions.map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSettings({...settings, prompt: suggestion})}
+                      className="text-xs px-3 py-1.5 rounded-full glass hover:bg-primary/20 transition-colors border border-primary/30"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Опишите, как должно ожить фото: движения, действия, эффекты
+                </p>
+              </div>
               <div>
                 <Label className="text-base mb-3 block">Длительность: {settings.duration}с</Label>
                 <Slider 
