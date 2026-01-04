@@ -19,6 +19,7 @@ interface AnimationSettings {
 
 export default function Index() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [settings, setSettings] = useState<AnimationSettings>({
     duration: 3,
@@ -64,8 +65,10 @@ export default function Index() {
     }
     
     setIsProcessing(true);
+    setGeneratedVideo(null);
     setTimeout(() => {
       setIsProcessing(false);
+      setGeneratedVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4');
       toast({
         title: "Видео готово!",
         description: `Анимация создана в формате ${settings.format.toUpperCase()}`,
@@ -166,6 +169,60 @@ export default function Index() {
                       </div>
                       <div className="w-full bg-muted rounded-full h-2">
                         <div className="h-full bg-gradient-to-r from-primary via-secondary to-accent rounded-full animate-gradient bg-300%"></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {generatedVideo && !isProcessing && (
+                    <div className="animate-scale-in">
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-lg font-semibold flex items-center gap-2">
+                          <Icon name="Video" size={20} className="text-primary" />
+                          Результат
+                        </Label>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="glass"
+                            onClick={() => {
+                              const a = document.createElement('a');
+                              a.href = generatedVideo;
+                              a.download = `animated-${Date.now()}.${settings.format}`;
+                              a.click();
+                              toast({
+                                title: "Загрузка начата",
+                                description: "Видео сохраняется на ваше устройство"
+                              });
+                            }}
+                          >
+                            <Icon name="Download" size={16} className="mr-2" />
+                            Скачать
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="relative rounded-lg overflow-hidden glass p-2">
+                        <video
+                          src={generatedVideo}
+                          controls
+                          autoPlay
+                          loop
+                          className="w-full rounded-lg"
+                        />
+                      </div>
+                      <div className="mt-3 p-3 glass rounded-lg">
+                        <div className="flex items-start gap-2 text-sm">
+                          <Icon name="Info" size={16} className="text-primary mt-0.5" />
+                          <div>
+                            <p className="font-medium mb-1">Параметры видео:</p>
+                            <div className="text-muted-foreground space-y-1">
+                              <p>• Длительность: {settings.duration}с</p>
+                              <p>• Стиль: {settings.style}</p>
+                              <p>• Формат: {settings.format.toUpperCase()}</p>
+                              <p>• Промпт: "{settings.prompt}"</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
